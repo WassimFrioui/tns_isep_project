@@ -41,7 +41,6 @@ export default function FriendListPage() {
 
   return (
     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Recherche amis */}
       <div>
         <h2 className="text-xl font-bold mb-2">👥 Mes amis</h2>
         <input
@@ -62,8 +61,6 @@ export default function FriendListPage() {
             ))}
         </ul>
       </div>
-
-      {/* Suggestions */}
       <div>
         <h2 className="text-xl font-bold mb-2">🎯 Suggestions d’amis</h2>
         <ul className="space-y-2">
@@ -82,7 +79,6 @@ export default function FriendListPage() {
         </ul>
       </div>
 
-      {/* Demandes d’amis */}
       <div>
         <h2 className="text-xl font-bold mb-2">📨 Demandes reçues</h2>
         <ul className="space-y-2">
@@ -107,7 +103,6 @@ export default function FriendListPage() {
           ))}
         </ul>
       </div>
-      {/* Navbar */}
       <Navbar />
     </div>
   );

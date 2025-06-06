@@ -1,3 +1,5 @@
+// app/api/posts/route.ts
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { getNeo4jSession } from "@/lib/neo4j";
@@ -11,6 +13,7 @@ export async function POST(req: Request) {
 
   const form = await req.formData();
   const content = form.get("content")?.toString();
+  const visibility = form.get("visibility")?.toString() || "public";
   const image = form.get("image") as File;
 
   if (!content && !image) {
@@ -36,7 +39,8 @@ export async function POST(req: Request) {
         id: randomUUID(),
         content: $content,
         image: $image,
-        createdAt: datetime()
+        createdAt: datetime(),
+        visibility: $visibility
       })
       MERGE (u)-[:POSTED]->(p)
       `,
@@ -44,6 +48,7 @@ export async function POST(req: Request) {
         email: session.user?.email,
         content,
         image: imagePath,
+        visibility,
       }
     );
 

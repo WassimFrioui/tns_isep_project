@@ -19,17 +19,18 @@ type Post = {
 
 export default async function FriendsFeedPage() {
   const session = await getServerSession(authOptions);
-  if (!session) return notFound();
+  if (!session?.user?.email) return notFound();
 
-  const email = session.user?.email;
+  const email = session.user.email;
   const db = getNeo4jSession("READ");
 
   try {
     const result = await db.run(
       `
       MATCH (me:User {email: $email})-[:FRIEND]-(friend:User)-[:POSTED]->(p:Post)
+      WHERE p.visibility IN ["public", "friends"]
       OPTIONAL MATCH (liker:User)-[:LIKED]->(p)
-      RETURN p, friend, count(liker) AS likeCount
+      RETURN p, friend AS u, count(liker) AS likeCount
       ORDER BY p.createdAt DESC
       `,
       { email }
@@ -37,7 +38,7 @@ export default async function FriendsFeedPage() {
 
     const posts: Post[] = result.records.map((record) => {
       const p = record.get("p").properties;
-      const f = record.get("friend").properties;
+      const u = record.get("u").properties;
       const likeCount = record.get("likeCount")?.toNumber?.() || 0;
 
       return {
@@ -47,8 +48,8 @@ export default async function FriendsFeedPage() {
         createdAt: p.createdAt,
         likeCount,
         author: {
-          name: f.name,
-          image: f.image || "/defaut_user.png",
+          name: u.name,
+          image: u.image || "/defaut_user.png",
         },
       };
     });
@@ -56,7 +57,6 @@ export default async function FriendsFeedPage() {
     return (
       <div className="p-6 max-w-2xl mx-auto">
         <Nav_Top />
-
         <h1 className="text-2xl font-bold mb-6">🧑‍🤝‍🧑 Fil des amis</h1>
 
         {posts.length === 0 && (
@@ -81,19 +81,26 @@ export default async function FriendsFeedPage() {
 
             {post.content && <p className="mb-2">{post.content}</p>}
 
-            {post.image && (
-              <img
-                src={post.image}
-                alt="image post"
-                className="mt-2 rounded max-h-96 object-cover"
-              />
-            )}
+                {post.image && post.image.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                  <video
+                    src={post.image}
+                    controls
+                    className="max-w-full object-contain mx-auto my-auto"
+                    style={{ display: "block" }}
+                  />
+                ) : post.image ? (
+                  <img
+                    src={post.image}
+                    alt="image post"
+                    className="max-w-full max-h-[85%] object-contain mx-auto my-auto"
+                    style={{ display: "block" }}
+                  />
+                ) : null}
 
             <p className="text-sm text-gray-500 mt-2">
               Posté le {new Date(post.createdAt).toLocaleString()}
             </p>
 
-            {/* ❤️ Like button */}
             <LikeButton postId={post.id} initialLikes={post.likeCount} />
           </div>
         ))}
@@ -101,7 +108,7 @@ export default async function FriendsFeedPage() {
     );
   } catch (err) {
     console.error("Erreur feed friends", err);
-    return <p className="p-6 text-red-500">Erreur lors du chargement.</p>;
+    return <p className="p-6 text-red-500">Erreur lors du chargement du fil.</p>;
   } finally {
     await db.close();
   }

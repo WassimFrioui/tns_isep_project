@@ -15,7 +15,8 @@ export default function ForgotPasswordPage() {
     });
 
     if (res.ok) setSent(true);
-    else alert("Erreur !");
+    else alert("Erreur");
+    console.error("Erreur lors de la demande de réinitialisation", res.statusText);
   };
 
   return (

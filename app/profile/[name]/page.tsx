@@ -5,6 +5,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // 🆕
 import { notFound } from "next/navigation";
 import FreindButton from "@/components/FriendsButton";
 import Navbar from "@/components/Navbar";
+import SendMessageForm from "@/components/SendMessageForm";
 
 type Props = {
   params: {
@@ -61,7 +62,6 @@ export default async function PublicProfilePage({ params }: Props) {
           />
           <h1 className="mt-3 text-2xl font-bold">@{user.name}</h1>
 
-          {/* ✅ Bouton conditionnel */}
           {isOwner ? (
             <Link
               href="/profile/edit"
@@ -70,7 +70,10 @@ export default async function PublicProfilePage({ params }: Props) {
               Modifier mon profil
             </Link>
           ) : (
-            <FreindButton targetName={user.name} />
+            <div className="mt-2 text-sm text-gray-500">
+              <FreindButton targetName={user.name} />
+              <SendMessageForm name={user.name} />
+            </div>
           )}
 
           <p className="mt-2 text-center text-gray-700">
@@ -89,7 +92,6 @@ export default async function PublicProfilePage({ params }: Props) {
           </div>
         </div>
 
-        {/* Grille de posts */}
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-3">Publications</h2>
           {posts.length === 0 && (
