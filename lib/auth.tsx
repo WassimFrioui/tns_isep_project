@@ -1,4 +1,3 @@
-// src/lib/auth.ts
 import { serialize } from 'cookie';
 import jwt from 'jsonwebtoken';
 

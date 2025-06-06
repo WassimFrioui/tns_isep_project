@@ -2,25 +2,24 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { FaHome, FaPlusSquare, FaHeart, FaUser, FaUsers } from "react-icons/fa";
+import { FaHome, FaPlusSquare, FaUser, FaUsers,FaEnvelope } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 
 const Navbar: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
-  // Récupération du nom d'utilisateur pour le profil
   const name = session?.user?.name;
 
   const navItems = [
     { icon: <FaHome />, label: "Home", href: "/" },
     { icon: <FaUsers />, label: "Friends", href: "/friends" },
-    { icon: <FaPlusSquare />, label: "Add", href: "/profile" },
-    { icon: <FaHeart />, label: "Likes", href: "/likes" },
+    { icon: <FaPlusSquare />, label: "Add", href: "/post/new" },
+    { icon: <FaEnvelope />, label: "Message", href: "/messages" },
     {
       icon: <FaUser />,
       label: "Profil",
-      href: name ? `/profile/${name}` : "/profile", // fallback si pas connecté
+      href: name ? `/profile/${name}` : "/profile", 
     },
   ];
 

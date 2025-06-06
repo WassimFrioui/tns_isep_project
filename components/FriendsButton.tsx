@@ -15,7 +15,7 @@ export default function AddFriendButton({ targetName }: { targetName: string }) 
 
       const res = await fetch(`/api/friends/status?targetName=${targetName}`);
       const data = await res.json();
-      setIsFriend(data.isFriend); // true | false
+      setIsFriend(data.isFriend); 
     };
 
     checkFriendStatus();

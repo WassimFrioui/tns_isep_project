@@ -11,7 +11,7 @@ export default function LogoutPage() {
     signOut({
       redirect: false,
     }).then(() => {
-      router.push("/login"); // ou "/" selon ton app
+      router.push("/login");
     });
   }, [router]);
 

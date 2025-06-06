@@ -42,7 +42,7 @@ export default function FriendListPage() {
   return (
     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div>
-        <h2 className="text-xl font-bold mb-2">👥 Mes amis</h2>
+        <h2 className="text-xl font-bold mb-2">Mes amis</h2>
         <input
           type="text"
           placeholder="Rechercher un ami..."
@@ -62,7 +62,7 @@ export default function FriendListPage() {
         </ul>
       </div>
       <div>
-        <h2 className="text-xl font-bold mb-2">🎯 Suggestions d’amis</h2>
+        <h2 className="text-xl font-bold mb-2">Suggestions d’amis</h2>
         <ul className="space-y-2">
           {suggestions.map((user) => (
             <li key={user.name} className="p-2 border rounded">
@@ -80,7 +80,7 @@ export default function FriendListPage() {
       </div>
 
       <div>
-        <h2 className="text-xl font-bold mb-2">📨 Demandes reçues</h2>
+        <h2 className="text-xl font-bold mb-2">Demandes reçues</h2>
         <ul className="space-y-2">
           {requests.map((req) => (
             <li key={req.name} className="p-2 border rounded">

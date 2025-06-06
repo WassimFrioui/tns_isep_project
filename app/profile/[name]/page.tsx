@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { getNeo4jSession } from "@/lib/neo4j";
-import { getServerSession } from "next-auth"; // 🆕
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // 🆕
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
 import { notFound } from "next/navigation";
 import FreindButton from "@/components/FriendsButton";
 import Navbar from "@/components/Navbar";
-import SendMessageForm from "@/components/SendMessageForm";
+import SendMessageForm from "@/components/SendMessageButton";
 
 type Props = {
   params: {
@@ -22,8 +22,8 @@ type Post = {
 
 export default async function PublicProfilePage({ params }: Props) {
   const session = getNeo4jSession("READ");
-  const auth = await getServerSession(authOptions); // 🆕
-  const isOwner = auth?.user?.name === params.name; // 🆕
+  const auth = await getServerSession(authOptions); 
+  const isOwner = auth?.user?.name === params.name; 
 
   try {
     const userResult = await session.run(
@@ -64,13 +64,13 @@ export default async function PublicProfilePage({ params }: Props) {
 
           {isOwner ? (
             <Link
-              href="/profile/edit"
+              href="/profile"
               className="mt-2 text-sm px-3 py-1 bg-blue-600 text-white rounded"
             >
               Modifier mon profil
             </Link>
           ) : (
-            <div className="mt-2 text-sm text-gray-500">
+            <div className="mt-2 text-sm text-gray-500 flex flex-row gap-2">
               <FreindButton targetName={user.name} />
               <SendMessageForm name={user.name} />
             </div>

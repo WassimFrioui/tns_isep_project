@@ -1,5 +1,3 @@
-// app/api/posts/route.ts
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { getNeo4jSession } from "@/lib/neo4j";

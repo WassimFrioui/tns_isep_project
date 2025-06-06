@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { targetName } = await req.json(); // Nom de la personne à qui on veut envoyer la demande
+  const { targetName } = await req.json(); 
 
   const userEmail = session.user?.email;
   const sessionNeo = getNeo4jSession("WRITE");

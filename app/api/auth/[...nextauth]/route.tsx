@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { getNeo4jSession } from "@/lib/neo4j";
 import { AuthOptions } from "next-auth";
-import bcrypt from "bcryptjs"; // Import de bcrypt
+import bcrypt from "bcryptjs"; 
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -18,7 +18,6 @@ export const authOptions: AuthOptions = {
         try {
           const { email, password } = credentials ?? {};
 
-          // Récupérer l'utilisateur par email uniquement
           const result = await session.run(
             `
             MATCH (u:User { email: $email })
@@ -29,7 +28,7 @@ export const authOptions: AuthOptions = {
 
           const user = result.records[0]?.get("u")?.properties;
 
-          // Vérification du mot de passe haché avec bcrypt
+          
           const isValid =
             user &&
             typeof password === "string" &&

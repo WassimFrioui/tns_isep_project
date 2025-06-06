@@ -5,7 +5,6 @@ import { writeFile } from "fs/promises";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import path from "path";
 
-// GET: retourne les infos utilisateur
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -34,7 +33,6 @@ export async function GET() {
   }
 }
 
-// POST: met à jour les infos utilisateur
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });

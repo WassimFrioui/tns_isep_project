@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
+import Navbar from '@/components/Navbar';
 
 type Message = {
   id: string;
@@ -90,6 +91,7 @@ export default function ChatPage() {
           Envoyer
         </button>
       </div>
+      <Navbar />
     </div>
   );
 }

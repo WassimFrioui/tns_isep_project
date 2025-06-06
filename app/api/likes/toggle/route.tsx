@@ -21,7 +21,6 @@ export async function POST(req: Request) {
     );
 
     if (check.records.length > 0) {
-      // Déjà liké → supprimer le like
       await sessionNeo.run(
         `
         MATCH (u:User {email: $email})-[r:LIKED]->(p:Post {id: $postId})
@@ -31,7 +30,6 @@ export async function POST(req: Request) {
       );
       return NextResponse.json({ liked: false });
     } else {
-      // Pas encore liké → créer le like
       await sessionNeo.run(
         `
         MATCH (u:User {email: $email}), (p:Post {id: $postId})
