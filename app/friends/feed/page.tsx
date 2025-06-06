@@ -1,5 +1,7 @@
 import { getNeo4jSession } from "@/lib/neo4j";
-import Navbar from "@/components/Navbar";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { notFound } from "next/navigation";
 import LikeButton from "@/components/LikeButton";
 import Nav_Top from "@/components/Nav_Top";
 
@@ -15,23 +17,28 @@ type Post = {
   };
 };
 
-export default async function GlobalFeedPage() {
-  const session = getNeo4jSession("READ");
+export default async function FriendsFeedPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) return notFound();
+
+  const email = session.user?.email;
+  const db = getNeo4jSession("READ");
 
   try {
-    const result = await session.run(
+    const result = await db.run(
       `
-      MATCH (u:User)-[:POSTED]->(p:Post)
+      MATCH (me:User {email: $email})-[:FRIEND]-(friend:User)-[:POSTED]->(p:Post)
       OPTIONAL MATCH (liker:User)-[:LIKED]->(p)
-      RETURN p, u, count(liker) AS likeCount
+      RETURN p, friend, count(liker) AS likeCount
       ORDER BY p.createdAt DESC
-      `
+      `,
+      { email }
     );
 
     const posts: Post[] = result.records.map((record) => {
       const p = record.get("p").properties;
-      const u = record.get("u").properties;
-      const likeCount = record.get("likeCount").toNumber?.() || 0;
+      const f = record.get("friend").properties;
+      const likeCount = record.get("likeCount")?.toNumber?.() || 0;
 
       return {
         id: p.id,
@@ -40,16 +47,21 @@ export default async function GlobalFeedPage() {
         createdAt: p.createdAt,
         likeCount,
         author: {
-          name: u.name,
-          image: u.image || "/defaut_user.png",
+          name: f.name,
+          image: f.image || "/defaut_user.png",
         },
       };
     });
 
     return (
-      <div className="relative py-12 max-w-2xl mx-auto px-4">
+      <div className="p-6 max-w-2xl mx-auto">
         <Nav_Top />
-        {posts.length === 0 && <p>Aucun post pour l’instant.</p>}
+
+        <h1 className="text-2xl font-bold mb-6">🧑‍🤝‍🧑 Fil des amis</h1>
+
+        {posts.length === 0 && (
+          <p className="text-gray-600">Aucune publication de vos amis.</p>
+        )}
 
         {posts.map((post) => (
           <div key={post.id} className="mb-6 border p-4 rounded shadow">
@@ -81,20 +93,16 @@ export default async function GlobalFeedPage() {
               Posté le {new Date(post.createdAt).toLocaleString()}
             </p>
 
-            {/* ❤️ Like button avec likeCount initial */}
-            <div className="mt-2 text-sm text-gray-600">
-              <span className="font-semibold">{post.likeCount}</span> J&apos;aime
-            </div>
+            {/* ❤️ Like button */}
             <LikeButton postId={post.id} initialLikes={post.likeCount} />
           </div>
         ))}
-        <Navbar />
       </div>
     );
-  } catch (error) {
-    console.error("Erreur récupération du feed", error);
-    return <p className="p-6 text-red-500">Erreur lors du chargement du fil d&apos;actualité.</p>;
+  } catch (err) {
+    console.error("Erreur feed friends", err);
+    return <p className="p-6 text-red-500">Erreur lors du chargement.</p>;
   } finally {
-    await session.close();
+    await db.close();
   }
 }

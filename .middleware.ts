@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from './lib/jwt';
+import { verifyToken } from './lib/auth';
 
 const protectedPaths = ['/profile', '/api/friends', '/api/profile'];
 

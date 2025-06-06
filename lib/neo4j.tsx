@@ -1,10 +1,10 @@
-import neo4j from 'neo4j-driver';
+// lib/neo4j.ts
+import neo4j from 'neo4j-driver'
 
-const driver = neo4j.driver(
-  process.env.NEO4J_URI || 'bolt://localhost:7687',
-  neo4j.auth.basic(process.env.NEO4J_USER || 'neo4j', process.env.NEO4J_PASSWORD || 'password')
-);
+export const driver = neo4j.driver(
+  process.env.NEO4J_URI!,
+  neo4j.auth.basic(process.env.NEO4J_USER!, process.env.NEO4J_PASSWORD!)
+)
 
-export const getSession = () => driver.session();
-
-export default driver;
+export const getNeo4jSession = (mode: "READ" | "WRITE" = "READ") =>
+  driver.session({ defaultAccessMode: mode === "READ" ? neo4j.session.READ : neo4j.session.WRITE });

@@ -1,35 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/neo4j';
-import bcrypt from 'bcrypt';
+import { NextResponse } from "next/server";
+import { getNeo4jSession } from "@/lib/neo4j";
+import { randomUUID } from "crypto";
+import bcrypt from "bcryptjs";
 
-export async function POST(req: NextRequest) {
-  const { email, password, username } = await req.json();
+export async function POST(req: Request) {
+  const { name, email, password } = await req.json();
+  const session = getNeo4jSession("WRITE");
 
-  if (!email || !password || !username) {
-    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  try {
+    const existing = await session.run(
+      `MATCH (u:User { email: $email }) RETURN u`,
+      { email }
+    );
+
+    if (existing.records.length > 0) {
+      return NextResponse.json({ error: "Utilisateur déjà existant" }, { status: 409 });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const id = randomUUID();
+    await session.run(
+      `CREATE (u:User {
+        id: $id,
+        name: $name,
+        email: $email,
+        password: $hashedPassword
+      })`,
+      { id, name, email, hashedPassword }
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Erreur Register", error);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  } finally {
+    await session.close();
   }
-
-  const session = getSession();
-
-  // Vérifier unicité username/email
-  const check = await session.run(
-    `MATCH (u:User) WHERE u.email = $email OR u.username = $username RETURN u LIMIT 1`,
-    { email, username }
-  );
-  if (check.records.length > 0) {
-    session.close();
-    return NextResponse.json({ error: 'User/email already exists' }, { status: 409 });
-  }
-
-  // Hash password
-  const hash = await bcrypt.hash(password, 10);
-
-  // Créer user
-  await session.run(
-    `CREATE (u:User {email: $email, username: $username, password: $password}) RETURN u`,
-    { email, username, password: hash }
-  );
-  session.close();
-
-  return NextResponse.json({ message: 'User created' }, { status: 201 });
 }

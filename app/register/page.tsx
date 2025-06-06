@@ -1,70 +1,61 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, username, password }),
+  const handleRegister = async () => {
+    setError(null);
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
     });
 
-    setLoading(false);
-
     if (res.ok) {
-      router.push('/login');
+      router.push("/login");
     } else {
-      const data = await res.json();
-      setError(data.error || 'Erreur lors de l\'inscription');
+      setError("Erreur d'inscription");
     }
-  }
+  };
 
   return (
-    <main style={{ maxWidth: 400, margin: 'auto', padding: 20 }}>
-      <h1>Inscription</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          style={{ width: '100%', marginBottom: 10 }}
-        />
-        <input
-          type="text"
-          placeholder="Pseudo"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          required
-          style={{ width: '100%', marginBottom: 10 }}
-        />
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          style={{ width: '100%', marginBottom: 10 }}
-        />
-        <button type="submit" disabled={loading} style={{ width: '100%' }}>
-          {loading ? 'Chargement...' : 'S\'inscrire'}
-        </button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </main>
+    <div className="p-6 max-w-md mx-auto">
+      <h1 className="text-xl font-bold mb-4">Créer un compte</h1>
+      <input
+        className="w-full p-2 mb-2 border"
+        placeholder="Nom"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        className="w-full p-2 mb-2 border"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        className="w-full p-2 mb-4 border"
+        placeholder="Mot de passe"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button
+        className="bg-green-600 text-white px-4 py-2 rounded"
+        onClick={handleRegister}
+      >
+        S’inscrire
+      </button>
+
+      {error && (
+        <p className="text-red-600 mt-2">Erreur : {error}</p>
+      )}
+    </div>
   );
 }

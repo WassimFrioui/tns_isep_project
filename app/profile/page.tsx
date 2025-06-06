@@ -1,107 +1,52 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import {CreatePostForm} from "@/components/PostForm";
 
-type Profile = {
-  name: string;
-  bio: string;
-  username?: string;
-};
+export default function PrivateProfilePage() {
+  const [bio, setBio] = useState("");
+  const [interests, setInterests] = useState("");
+  const [image, setImage] = useState<File | null>(null);
 
-export default function EditProfilePage() {
-  const router = useRouter();
+  const handleUpdate = async () => {
+    const form = new FormData();
+    form.append("bio", bio);
+    form.append("interests", interests);
+    if (image) form.append("image", image);
 
-  const [profile, setProfile] = useState<Profile>({ name: '', bio: '' });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
-
-useEffect(() => {
-  async function fetchProfile() {
-    try {
-      const res = await fetch('/api/auth/me'); // utilise les cookies envoyés automatiquement
-
-      if (res.status === 401) {
-        router.push('/login');
-        return;
-      }
-
-      if (!res.ok) {
-        setError('Impossible de récupérer le profil');
-        setLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      setProfile({
-        username: data.username,
-        name: data.name,
-        bio: data.bio,
-      });
-      setLoading(false);
-    } catch {
-      setError('Erreur lors du chargement');
-      setLoading(false);
-    }
-  }
-
-  fetchProfile();
-}, [router]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    setSaving(true);
-
-    const res = await fetch(`/api/profile/${profile.username}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: profile.name, bio: profile.bio }),
+    const res = await fetch("/api/profile", {
+      method: "POST",
+      body: form,
     });
 
-    setSaving(false);
-
-    if (res.ok) {
-      router.push(`/profile/${profile.username}`);
-    } else {
-      const data = await res.json();
-      setError(data.error || 'Erreur lors de la sauvegarde');
-    }
-  }
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-  }
-
-  if (loading) return <p>Chargement...</p>;
+    if (res.ok) alert("Profil mis à jour !");
+  };
 
   return (
-    <main style={{ maxWidth: 600, margin: 'auto', padding: 20 }}>
-      <h1>Modifier mon profil</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Nom complet"
-          value={profile.name}
-          onChange={handleChange}
-          style={{ width: '100%', marginBottom: 10 }}
-        />
-        <textarea
-          name="bio"
-          placeholder="Bio"
-          value={profile.bio}
-          onChange={handleChange}
-          rows={5}
-          style={{ width: '100%', marginBottom: 10 }}
-        />
-        <button type="submit" disabled={saving} style={{ width: '100%' }}>
-          {saving ? 'Sauvegarde...' : 'Sauvegarder'}
-        </button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </main>
+    <div className="p-6 max-w-xl mx-auto">
+      <h1 className="text-xl font-bold mb-4">Mon Profil</h1>
+
+      <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] || null)} className="mb-4" />
+
+      <textarea
+        className="w-full p-2 border mb-4"
+        placeholder="Bio"
+        value={bio}
+        onChange={(e) => setBio(e.target.value)}
+      />
+
+      <input
+        className="w-full p-2 border mb-4"
+        placeholder="Intérêts (ex: sport, musique)"
+        value={interests}
+        onChange={(e) => setInterests(e.target.value)}
+      />
+
+      <button onClick={handleUpdate} className="bg-blue-600 text-white px-4 py-2 rounded">
+        Enregistrer
+      </button>
+
+      <CreatePostForm />
+    </div>
   );
 }
