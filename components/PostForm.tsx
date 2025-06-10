@@ -47,7 +47,6 @@ export function CreatePostForm() {
   return (
     <div className="flex flex-col items-center sm:justify-center p-4 sm:p-8 w-full max-w-md mx-auto bg-white rounded-xl shadow-md mt-6 sm:mt-10">
       <h2 className="text-lg font-semibold mb-4 text-center">Créer un post</h2>
-      {/* Media preview */}
       <div className="relative mb-4">
         {mediaUrl ? (
           mediaType === "video" ? (
