@@ -23,7 +23,7 @@ export async function GET(req: Request, { params }: Params) {
       MATCH (friend:User {name: $username})
       MATCH (friend)-[:SENT]->(m:Message)-[:TO]->(me)
       RETURN m, 'received' AS direction
-      ORDER BY m.createdAt ASC
+      ORDER BY m.createdAt DESC
       `,
       { email: session.user.email, username: decodeURIComponent(params.username) }
     );

@@ -26,7 +26,7 @@ export function CreatePostForm() {
     const form = new FormData();
     form.append("content", content);
     form.append("visibility", visibility);
-    if (media) form.append("media", media);
+    if (media) form.append("image", media);
 
     const res = await fetch("/api/posts", {
       method: "POST",
